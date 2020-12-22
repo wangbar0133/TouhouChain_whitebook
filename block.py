@@ -93,11 +93,11 @@ class BlockChain():
         self.Hard = hard
 
     def NewChain(self, tx_list, newBlock):
-        newBlock['tx'] = tx_list
+        newBlock['tx'] = newBlock['tx'] + tx_list
         self.chain.append(newBlock)
 
     def AddBlockToChain(self, tx_list, newBlock):
-        newBlock['tx'] = tx_list
+        newBlock['tx'] = newBlock['tx'] + tx_list
         self.chain.append(newBlock)
 
     def PrintBlockChain(self):
