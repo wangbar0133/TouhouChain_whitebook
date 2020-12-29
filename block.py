@@ -4,7 +4,8 @@ import time
 import donna25519 as curve25519
 import random
 import ed25519
-from user import CreateAccount
+import json
+import os
 
 dict_bin = {
     '0': '0000',
@@ -36,25 +37,27 @@ class Block(): #块对象定义
     def __init__(self):
         self.BlockJson = {
                 "headers": {
-                    "pr_block_hash": None,
-                    "hard": None,
-                    "var": None,
-                    "timestamp": None,
-                    "main_chain": True
+                    "pr_block_hash": "",
+                    "hard": "",
+                    "var": "",
+                    "timestamp": "",
+                    "main_chain": 'True'
                 },
-                "block_hash": None,
+                "block_hash": "",
                 "tx": [
                 ]
             }
 
         self.tx_list_object = {
-                        'send': None,
-                        'recive': None,
-                        'timestamp': None,
-                        'sign': None,
+                        'send': "",
+                        'recive': "",
+                        'timestamp': "",
+                        'sign': "",
                         'coin_list': [],
-                        'ex_mesg': None
+                        'ex_mesg': ""
                     }
+
+
 
     def CreateStartBlock(self, hard, miner, God, ex_mesg):#创建创世块
         self.BlockJson['headers']['hard'] = hard
@@ -88,6 +91,8 @@ class BlockChain():
 
     def __init__(self):
         self.chain = []
+        self.filename = os.getcwd() + '/' + 'blockchain.json'
+        self.Hard = 20
 
     def HardSetting(self, hard):
         self.Hard = hard
@@ -107,7 +112,15 @@ class BlockChain():
     def GetChain(self):
         return self.chain
 
+    def ToFile(self):
+        with open(self.filename, 'w') as file_obj:
+            jsonStr = json.loads(ListToStr(self.chain))
+            json.dump(jsonStr, file_obj)
+        file_obj.close()
 
+    def FileTo(self):
+        with open(self.filename) as file_obj:
+            self.chain = json.load(file_obj)
 
 
 def Proof(Block, hard):#工作量证明
@@ -126,12 +139,12 @@ def Transactions(send, SigningKey, recive, coin_list, ex_mesg):#SigningKey为Sig
     StrSign = ''
     for item in coin_list:
         StrSign = StrSign + item
-    sign = SigningKey.sign(bytes(StrSign, encoding='UTF-8'))
+    sign = SigningKey.sign(bytes(StrSign, encoding='UTF-8'), encoding="base64")
     return {
-                'send': send,
+                'send': str(send)[2:-1],
                 'recive': recive,
                 'timestamp': timestamp,
-                'sign': sign,
+                'sign': str(sign)[2:-1],
                 'coin_list': coin_list,
                 'ex_mesg': ex_mesg
             }
@@ -145,7 +158,14 @@ def MinerCoinList():
 def Coin():
     return str(random.randint(10**10, 10**11))
 
+def ListToStr(Lists):
+    Str = '['
+    for item in Lists:
+        Str = Str + str(item) + ','
+    Str = Str[0:-1] + ']'
+    Str = Str.replace("'", '"')
+    return Str
 
-aBlock = {'headers': {'pr_block_hash': None, 'hard': 1, 'var': None, 'timestamp': None, 'main_chain': True}, 'block_hash': '15d57c3377040f1de8bd3de6eee1c7003d2f3386f6da7c18317b62fdcb8bf64d', 'tx': [], 'timestamp': 1608626895.2281144}
+aBlock = {'headers': {'pr_block_hash': '3b91b6938d5b6a7b9645611874be5d022cb3cb9af5f0590cf2053cb6f35bc9ea', 'hard': 1, 'var': 720738739358122, 'timestamp': 1608842036.1920986, 'main_chain': 'True'}, 'block_hash': '3263111648f7ce7847fc743223596e93858d187bf108a5615f3514fd5baff09f', 'tx': [{'send': '58ba2ed0693b7baecfd0c92db251590d7775de63e28096c11e526868cfe11e8a', 'recive': '12345', 'timestamp': 1608842036.192287, 'sign': 'SmS3r3f3enx1AZUsxXSeV2fLfwfWKuJB9NuRG+KHZ0cCjm2rkRmnQr76YzsvBN4yOBndy7o/RI9kt9tyQKojCQ', 'coin_list': ['32539285717', '48046208218', '93758500636', '68358694043', '88125517036', '63140560766', '49995213343', '41330701359', '68194671875', '19797954981', '40474943768', '44521762831', '83376898157', '44857506899', '57136310768', '45220503968', '36227252573', '61770945398', '26074468478', '19388423054', '69571467589', '72818500124', '29998650638', '53597662402', '17580075653', '45152793882', '17044176202', '31314570275', '76790005252', '22710646889', '69289118732', '53587951571'], 'ex_mesg': ''}, '      ObjectTransparants', '      ObjectTransparants', '      ObjectTransparants']}
 
 

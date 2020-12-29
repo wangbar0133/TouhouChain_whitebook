@@ -13,24 +13,38 @@ def home():
     return
 '''
 
-tx_list_object = ['1', '2', '3', '4', '5', '6']
+tx_list_object = ['      ObjectTransparants', '      ObjectTransparants', '      ObjectTransparants']
 miner = '12345'
 God = CreateAccount()
 blockDemo = BlockChain()
-blockDemo.HardSetting(hard=5)
+blockDemo.HardSetting(hard=1)
 hard = blockDemo.Hard
-ex_mesg = '123431'
+ex_mesg = ''
 
 newBlock = Block().CreateStartBlock(hard, miner, God, ex_mesg)
 
 blockDemo.NewChain(newBlock=newBlock, tx_list=tx_list_object)
 
 while True:
-    tx_list_object = []
-    for i in range(0, 7):
-        tx_list_object.append(random.randint(0, 9))
     newBlock = Block().CreateNewBlock(hard, miner, God, ex_mesg, blockDemo)
     blockDemo.AddBlockToChain(newBlock=newBlock, tx_list=tx_list_object)
     time.sleep(1)
     print(blockDemo.GetChain()[-1])
-    #blockDemo.PrintBlockChain()
+    blockDemo.ToFile()
+
+
+
+
+'''
+blockDemo = BlockChain()
+blockDemo.FileTo()
+blockDemo.PrintBlockChain()
+'''
+
+
+'''
+bc = BlockChain()
+bc.FileTo()
+print(bc.chain)
+#print(God1.SigningKey)
+'''
