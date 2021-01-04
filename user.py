@@ -5,15 +5,18 @@ import json
 import socket
 
 
-class CreateAccount():#创建用户对象
-
+class CreateAccount():
+    """创建用户对象"""
     def __init__(self):
         self.signing_key, self.verifying_key = ed25519.create_keypair()
         self.PublicKey = self.verifying_key.to_ascii(encoding="hex")
         self.PrivateKey = self.signing_key.to_ascii(encoding="hex")
         self.SigningKey = self.signing_key
         self.VerifiyingKey = self.verifying_key
+        self.Username = str(self.PublicKey)[2:-1]
+        self.Password = str(self.PrivateKey)[2:-1]
         self.filename = os.getcwd() + '/' + 'God.json'
+
 
     def SetGod(self):
         jsonStr = {
@@ -25,7 +28,8 @@ class CreateAccount():#创建用户对象
         file_obj.close()
 
 
-    def FileTo(self):
+    def FileTo(self):   #  l
+        """load god from file"""
         with open(self.filename) as file_obj:
             jsonStr = json.load(file_obj)
             self.PublicKey = bytes(jsonStr["GodName"][2:-1], encoding="utf-8")
@@ -35,7 +39,7 @@ class CreateAccount():#创建用户对象
 
 
 class AccountSearch():
-
+    """用户操作对象"""
     def __init__(self):
         pass
 
@@ -58,20 +62,24 @@ class AccountSearch():
         udpCliSock.sendto(data, ADDR)
         udpCliSock.close()
 
-def MiningOneBlock(minerAccount, BlockChain, God, ex_mesg):#挖一个块
+def MiningOneBlock(minerAccount, BlockChain, God, ex_mesg):
+    """挖一个块"""
     hard = BlockChain.Hard
-    newBlock = Block().CreateNewBlock(hard, minerAccount, God, ex_mesg, BlockChain)
+    #TODO：BUG BlockChain对象可能为空
+    newBlock = Block()
+    newBlock.CreateNewBlock(hard, minerAccount, God, ex_mesg, BlockChain)
     return newBlock
 
 def AccountAllCoins(AccountName, BlockChain):
+    """一个账户的所有硬币"""
     chain = BlockChain.chain
     coinDict = {}
     for block in chain:
         for trans in block['tx']:
-            if trans['send'] == AccountName:
+            if trans['recive'] == AccountName:
                 for coin in trans['coin_list']:
                     coinDict[coin] = coinDict[coin] + 1 if coin in coinDict else 1
-            elif trans['recive'] == AccountName:
+            elif trans['send'] == AccountName:
                 for coin in trans['coin_list']:
                     try:
                         coinDict[coin] = coinDict[coin] - 1
@@ -88,7 +96,7 @@ def AccountAllTrans(AccountName, BlockChain):
     tranList = []
     for block in chain:
         tranList = TransFinder(AccountName, block['tx'], tranList)
-    return  tranList
+    return tranList
 
 
 

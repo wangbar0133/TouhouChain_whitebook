@@ -34,9 +34,7 @@ def TransPool():
             pass
         time.sleep(0.2)
 
-@click.command()
-@click.option('--accountname')
-def go(accountname):
+def DomMining(accountname):
     global flag
     flag = 1
     while True:
@@ -50,6 +48,11 @@ def go(accountname):
         blockChain.AddBlockToChain(newBlock=newBlock, tx_list=pool)
         blockChain.ToFile()
         click.echo('connect to chain')
+
+@click.command()
+@click.option('--accountname')
+def go(accountname):
+    DomMining(accountname)
 
 if __name__ == '__main__':
     go()
