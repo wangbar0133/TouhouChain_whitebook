@@ -80,5 +80,5 @@ def listtarns():
 
 if __name__ == "__main__":
     #miner()
-    #listcoins()
-    listtarns()
+    listcoins()
+    #listtarns()

@@ -65,7 +65,6 @@ class AccountSearch():
 def MiningOneBlock(minerAccount, BlockChain, God, ex_mesg):
     """挖一个块"""
     hard = BlockChain.Hard
-    #TODO：BUG BlockChain对象可能为空
     newBlock = Block()
     newBlock.CreateNewBlock(hard, minerAccount, God, ex_mesg, BlockChain)
     return newBlock
@@ -98,6 +97,14 @@ def AccountAllTrans(AccountName, BlockChain):
         tranList = TransFinder(AccountName, block['tx'], tranList)
     return tranList
 
+def IsAccountExist(AccountName):
+    newBlockChain = BlockChain()
+    newBlockChain.FileTo()
+    chain = newBlockChain.chain
+    for block in chain:
+        for trans in block['tx']:
+            if trans['recive'] == AccountName or trans['send'] == AccountName:
+                return True
 
 
 def TransFinder(AccountName, transList, tranList):

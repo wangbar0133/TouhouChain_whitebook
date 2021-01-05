@@ -10,8 +10,8 @@ def createNewAccount():
         }
 
 def showAllCoins(AccountName):
-    AccountName = ed25519.SigningKey(bytes(AccountName, encoding="utf8"))
-    blockChain = BlockChain().FileTo()
+    blockChain = BlockChain()
+    blockChain.FileTo()
     coinList = AccountSearch().ShowCoins(AccountName, blockChain)
     return coinList
 
