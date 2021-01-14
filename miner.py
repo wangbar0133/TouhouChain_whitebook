@@ -47,7 +47,7 @@ def DomMining(accountname):
         ThreadPool.join()
         blockChain.AddBlockToChain(newBlock=newBlock, tx_list=pool)
         blockChain.ToFile()
-        click.echo('connect to chain')
+        print('connect to chain')
 
 @click.command()
 @click.option('--accountname')
