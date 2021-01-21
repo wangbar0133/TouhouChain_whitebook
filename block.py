@@ -5,8 +5,11 @@ import os
 from bin import Encrypt
 from bin import ListToStr
 from bin import Trans16To2
+from db import db
 
-class Block():  #  块对象定义
+
+class Block():  # 块对象定义
+
     def __init__(self):
         self.BlockJson = {
                 "headers": {
@@ -49,39 +52,23 @@ class Block():  #  块对象定义
 class BlockChain():
 
     def __init__(self):
-        self.chain = []
-        self.filename = os.getcwd() + '/' + 'blockchain.json'
-        self.Hard = 15
+        self.Hard = db.getHard()
 
     def HardSetting(self, hard):
         self.Hard = hard
 
-    def AddBlockToChain(self, tx_list, newBlock):
+    def AddBlockToChain(self, newBlock):
         blockJson = newBlock.BlockJson
-        blockJson['tx'] = blockJson['tx'] + tx_list
-        self.chain.append(blockJson)
+        db().insert(blockJson)
 
     def PrintBlockChain(self):
-        for block in self.chain:
+        for block in db().getChian():
             print(block)
 
     def GetChain(self):
-        return self.chain
+        return db().getChian()
 
-    def ToFile(self):
-        with open(self.filename, 'w') as file_obj:
-            jsonStr = json.loads(ListToStr(self.chain))
-            json.dump(jsonStr, file_obj)
-        file_obj.close()
-
-    def FileTo(self):
-        with open(self.filename) as file_obj:
-            try:
-                self.chain = json.load(file_obj)
-            except:
-                self.chain = []
-
-def Proof(Block, hard):  # 工作量证明
+def Proof(Block, hard): # 工作量证明
     while True:
         var = random.randint(1, 10**15)
         Block['headers']['var'] = var

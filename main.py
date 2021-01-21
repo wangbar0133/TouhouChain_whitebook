@@ -11,11 +11,13 @@ from client import showAllTransHistory
 
 app = Flask(__name__)
 
-@app.route('/',methods=['POST','GET'])
+
+@app.route('/', methods=['POST', 'GET']) # show hello
 def home():
     return render_template('hello.html')
 
-@app.route('/account/',methods=['POST','GET'])
+
+@app.route('/account/', methods=['POST', 'GET'])  # show account coins
 def account():
     #username = '66053664cae16a575ea087ce17c2b400326c366d64580818f14db15b27dbdf86'
     resp = request.form.getlist('username')
@@ -30,20 +32,25 @@ def account():
     return render_template('account.html',
                            coinList=coinList)
 
-@app.route('/createaccount/',methods=['POST','GET'])
+
+@app.route('/createaccount/', methods=['POST', 'GET'])  # create a new accont
 def createaccount():
     newAccount = CreateAccount()
     return render_template('createaccount.html',
                            username=newAccount.Username,
                            password=newAccount.Password)
 
-@app.route('/tran/',methods=['POST','GET'])
+
+@app.route('/tran/', methods=['POST', 'GET'])
 def tran():
     return render_template('tran.html')
 
-@app.route('/mine/',methods=['POST','GET'])
+
+@app.route('/mine/', methods=['POST', 'GET'])
 def mine():
     return render_template('mine.html')
 
+
 if __name__ == '__main__':
     app.run(debug=True)
+

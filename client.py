@@ -5,26 +5,23 @@ from block import BlockChain
 
 def createNewAccount():
     NewAccount = CreateAccount()
-    return {'AccountName': str(NewAccount.PublicKey),
-            'SigningKey' : str(NewAccount.PrivateKey)
-        }
+    return {
+        'AccountName': str(NewAccount.PublicKey),
+        'SigningKey' : str(NewAccount.PrivateKey)
+    }
 
 def showAllCoins(AccountName):
-    blockChain = BlockChain()
-    blockChain.FileTo()
-    coinList = AccountSearch().ShowCoins(AccountName, blockChain)
+    coinList = AccountSearch().ShowCoins(AccountName)
     return coinList
 
 def showAllTransHistory(AccountName):
     AccountName = ed25519.SigningKey(bytes(AccountName, encoding="utf8"))
-    blockChain = BlockChain().FileTo()
-    tranList = AccountSearch().ShowTransHistory(AccountName, blockChain)
+    tranList = AccountSearch().ShowTransHistory(AccountName)
     return tranList
 
 def transparant(SendName, ReciveName, key, coin):
     SendName = ed25519.SigningKey(bytes(SendName, encoding="utf8"))
-    blockChain = BlockChain().FileTo()
-    coinList = AccountSearch().ShowCoins(SendName, blockChain)
+    coinList = AccountSearch().ShowCoins(SendName)
     if coin not in coinList:
         return {'status': 'coin do not exist, trans cecal'}
     coin_list = []

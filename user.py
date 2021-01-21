@@ -3,7 +3,7 @@ from block import BlockChain, Block, ListToStr, Transactions
 import os
 import json
 import socket
-
+from db import db
 
 class CreateAccount():
     """创建用户对象"""
@@ -28,7 +28,7 @@ class CreateAccount():
         file_obj.close()
 
 
-    def FileTo(self):   #  l
+    def FileTo(self):
         """load god from file"""
         with open(self.filename) as file_obj:
             jsonStr = json.load(file_obj)
@@ -41,17 +41,38 @@ class CreateAccount():
 class AccountSearch():
     """用户操作对象"""
     def __init__(self):
-        pass
+        blockChainObj = BlockChain()
+        self.chainList = blockChainObj.GetChain()
 
-    def ShowCoins(self, AccountName, BlockChain):
-        coinList = AccountAllCoins(AccountName, BlockChain)
+    def ShowCoins(self, AccountName):
+        """一个账户的所有硬币"""
+        coinDict = {}
+        for block in self.chainList:
+            for trans in block['tx']:
+                if trans['recive'] == AccountName:
+                    for coin in trans['coin_list']:
+                        coinDict[coin] = coinDict[coin] + 1 if coin in coinDict else 1
+                elif trans['send'] == AccountName:
+                    for coin in trans['coin_list']:
+                        try:
+                            coinDict[coin] = coinDict[coin] - 1
+                        except:
+                            print('err')
+        coinList = []
+        for coin in coinDict:
+            if coinDict[coin] != 0:
+                coinList.append(coin)
         return coinList
 
-    def ShowTransHistory(self, AccountName, BlockChain):
-        tranList = AccountAllTrans(AccountName, BlockChain)
+    def ShowTransHistory(self, AccountName):
+        """一个账户的所有交易记录"""
+        tranList = []
+        for block in self.chainList:
+            tranList = TransFinder(AccountName, block['tx'], tranList)
         return tranList
 
     def SendCoins(self, SendName, ReciveName, key, coin_list, ex_mesg):
+        """发送硬币"""
         HOST = '192.168.1.255'
         PORT = 9999
         ADDR = (HOST, PORT)
@@ -62,52 +83,26 @@ class AccountSearch():
         udpCliSock.sendto(data, ADDR)
         udpCliSock.close()
 
-def MiningOneBlock(minerAccount, BlockChain, God, ex_mesg):
+
+def MiningOneBlock(minerAccount, God, ex_mesg):
     """挖一个块"""
-    hard = BlockChain.Hard
+    hard = db().getHard()
     newBlock = Block()
-    newBlock.CreateNewBlock(hard, minerAccount, God, ex_mesg, BlockChain)
+    newBlock.CreateNewBlock(hard, minerAccount, God, ex_mesg)
     return newBlock
 
-def AccountAllCoins(AccountName, BlockChain):
-    """一个账户的所有硬币"""
-    chain = BlockChain.chain
-    coinDict = {}
-    for block in chain:
-        for trans in block['tx']:
-            if trans['recive'] == AccountName:
-                for coin in trans['coin_list']:
-                    coinDict[coin] = coinDict[coin] + 1 if coin in coinDict else 1
-            elif trans['send'] == AccountName:
-                for coin in trans['coin_list']:
-                    try:
-                        coinDict[coin] = coinDict[coin] - 1
-                    except:
-                        print('err')
-    coinList = []
-    for coin in coinDict:
-        if coinDict[coin] != 0:
-            coinList.append(coin)
-    return coinList
-
-def AccountAllTrans(AccountName, BlockChain):
-    chain = BlockChain.chain
-    tranList = []
-    for block in chain:
-        tranList = TransFinder(AccountName, block['tx'], tranList)
-    return tranList
 
 def IsAccountExist(AccountName):
-    newBlockChain = BlockChain()
-    newBlockChain.FileTo()
-    chain = newBlockChain.chain
-    for block in chain:
+    """判断账号是否存在"""
+    chainList = db().getChian()
+    for block in chainList:
         for trans in block['tx']:
             if trans['recive'] == AccountName or trans['send'] == AccountName:
                 return True
 
 
 def TransFinder(AccountName, transList, tranList):
+    """查找一个用户的所有交易记录"""
     for tran in transList:
         if tran['send'] or tran['recive'] == AccountName:
             tranList.append(tran)
