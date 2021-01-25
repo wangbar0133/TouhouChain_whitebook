@@ -6,15 +6,14 @@ import time
 import click
 
 def MingBlock(AccountName):
-    blockChainObject = BlockChain()
-    blockChainObject.FileTo()
-    God = CreateAccount()
+    """在指定用户名下挖一个块,返回一个块对象"""
+    God = CreateAccount()  # 创建一个用户对象
     God.FileTo()
     ex_mesg = ""
     global newBlock
     global flag
     flag = 1
-    newBlock = MiningOneBlock(AccountName, blockChainObject, God, ex_mesg)
+    newBlock = MiningOneBlock(AccountName, God, ex_mesg)
     print("new block succeed!!")
     flag = 0
 
@@ -38,15 +37,13 @@ def DomMining(accountname):
     global flag
     flag = 1
     while True:
-        blockChain = BlockChain()
-        blockChain.FileTo()
         ThreadMining = threading.Thread(target=MingBlock, args=(accountname,))
         ThreadPool = threading.Thread(target=TransPool)
         ThreadMining.start()
         ThreadPool.start()
         ThreadPool.join()
-        blockChain.AddBlockToChain(newBlock=newBlock, tx_list=pool)
-        blockChain.ToFile()
+        newBlock.insertTrans(tx_list=pool)
+        BlockChain().AddBlockToChain(newBlock=newBlock)
         print('connect to chain')
 
 @click.command()

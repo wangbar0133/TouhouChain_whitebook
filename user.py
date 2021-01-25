@@ -16,7 +16,7 @@ class CreateAccount():
         self.Username = str(self.PublicKey)[2:-1]
         self.Password = str(self.PrivateKey)[2:-1]
         self.filename = os.getcwd() + '/' + 'God.json'
-
+        """god用户所在文件"""
 
     def SetGod(self):
         jsonStr = {
@@ -27,9 +27,8 @@ class CreateAccount():
             json.dump(jsonStr, file_obj)
         file_obj.close()
 
-
     def FileTo(self):
-        """load god from file"""
+        """从配置文件加载用户"""
         with open(self.filename) as file_obj:
             jsonStr = json.load(file_obj)
             self.PublicKey = bytes(jsonStr["GodName"][2:-1], encoding="utf-8")
@@ -39,7 +38,7 @@ class CreateAccount():
 
 
 class AccountSearch():
-    """用户操作对象"""
+    """用户操作类"""
     def __init__(self):
         blockChainObj = BlockChain()
         self.chainList = blockChainObj.GetChain()
@@ -86,15 +85,15 @@ class AccountSearch():
 
 def MiningOneBlock(minerAccount, God, ex_mesg):
     """挖一个块"""
-    hard = db().getHard()
-    newBlock = Block()
+    hard = BlockChain().getHard()
+    newBlock = Block()  # 初始化一个块对象
     newBlock.CreateNewBlock(hard, minerAccount, God, ex_mesg)
     return newBlock
 
 
 def IsAccountExist(AccountName):
     """判断账号是否存在"""
-    chainList = db().getChian()
+    chainList = BlockChain().getChian()
     for block in chainList:
         for trans in block['tx']:
             if trans['recive'] == AccountName or trans['send'] == AccountName:
@@ -108,6 +107,7 @@ def TransFinder(AccountName, transList, tranList):
             tranList.append(tran)
     return tranList
 
+
 def get_host_ip():
     """返回本机IP地址"""
     try:
@@ -118,5 +118,14 @@ def get_host_ip():
         ss.close()
     return ip
 
+
+def checkUser(verifying_string, verifying_key):
+    """验证签名"""
+    verifying_key = ed25519.SigningKey(bytes(verifying_key, encoding='UTF-8'), encoding="base64")
+    try:
+        verifying_key.verify(verifying_string, b"hello world", encoding="base64")
+        return True
+    except ed25519.BadSignatureError:
+        return False
 
 

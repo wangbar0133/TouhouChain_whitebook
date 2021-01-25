@@ -8,8 +8,8 @@ from bin import Trans16To2
 from db import db
 
 
-class Block():  # 块对象定义
-
+class Block():
+    """块对象"""
     def __init__(self):
         self.BlockJson = {
                 "headers": {
@@ -33,9 +33,9 @@ class Block():  # 块对象定义
                         'ex_mesg': ""
                     }
 
-    def CreateNewBlock(self, hard, miner, God, ex_mesg, BlockChain):  # 增加块
+    def CreateNewBlock(self, hard, miner, God, ex_mesg):  # 增加块
         try:
-            self.BlockJson['headers']['pr_block_hash'] = BlockChain.chain[-1]['block_hash']
+            self.BlockJson['headers']['pr_block_hash'] = BlockChain().getTopBlock()['block_hash']
         except:
             pass
         self.BlockJson['headers']['hard'] = hard
@@ -49,26 +49,23 @@ class Block():  # 块对象定义
     def PrintBlock(self):
         print(self.BlockJson)
 
-class BlockChain():
+    def insertTrans(self, tx_list):
+        self.BlockJson["tx"].append(tx_list)
 
-    def __init__(self):
-        self.Hard = db.getHard()
 
-    def HardSetting(self, hard):
-        self.Hard = hard
-
+class BlockChain(db):
+    """一个区块链类，不是对象"""
     def AddBlockToChain(self, newBlock):
         blockJson = newBlock.BlockJson
-        db().insert(blockJson)
+        self.insert(blockJson)
 
     def PrintBlockChain(self):
-        for block in db().getChian():
+        for block in self.getChian():
             print(block)
 
-    def GetChain(self):
-        return db().getChian()
 
-def Proof(Block, hard): # 工作量证明
+def Proof(Block, hard):
+    """工作量证明"""
     while True:
         var = random.randint(1, 10**15)
         Block['headers']['var'] = var
@@ -77,7 +74,9 @@ def Proof(Block, hard): # 工作量证明
         if list_arr[0:hard] == '0' * hard:
             return var
 
+
 def Transactions(send, SigningKey, recive, coin_list, ex_mesg):  #  SigningKey为SigningKey对象
+    """返回一个交易里面的交易json对象"""
     timestamp = time.time()
     StrSign = ''
     for item in coin_list:
@@ -92,11 +91,15 @@ def Transactions(send, SigningKey, recive, coin_list, ex_mesg):  #  SigningKey�
                 'ex_mesg': ex_mesg
             }
 
+
 def MinerCoinList():
+    """挖矿奖励的硬币列表"""
     coinList = []
     for count in range(0, 32):
         coinList.append(Coin())
     return coinList
 
+
 def Coin():
+    """一个硬币"""
     return str(random.randint(10**10, 10**11))
